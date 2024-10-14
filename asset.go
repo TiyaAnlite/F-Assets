@@ -9,6 +9,33 @@ import (
 	"net/http"
 )
 
+func listPosition(c echo.Context) error {
+	var pos []types.Position
+	if err := db.DB().Find(&pos).Error; err != nil {
+		return InternalError(c, err)
+	}
+	return echox.NormalResponse(c, &pos)
+}
+
+func getPosition(c echo.Context) error {
+	// 仅支持pos的唯一id
+	id := c.Param("id")
+	if id == "" {
+		return BadRequest(c, errors.New("id is required"))
+	}
+	pos := types.Position{}
+	if err := db.DB().
+		Where("id = ?", id).
+		Take(&pos).
+		Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return NotFound(c, errors.New("position not found"))
+		}
+		return InternalError(c, err)
+	}
+	return echox.NormalResponse(c, &pos)
+}
+
 func getItemContext(c echo.Context) (*types.ItemOptRequest, *types.Asset, error) {
 	req, err := echox.CheckInput[types.ItemOptRequest](c)
 	if err != nil {

@@ -4,6 +4,11 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type PositionOptRequest struct {
+	ID   string `json:"id"`
+	Name string `json:"name" validate:"required"`
+}
+
 type ItemOptRequest struct {
 	Type     AssetType `json:"type" validate:"required"`
 	Code     string    `json:"code"`
