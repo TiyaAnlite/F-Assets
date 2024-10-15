@@ -17,6 +17,39 @@ func listPosition(c echo.Context) error {
 	return echox.NormalResponse(c, &pos)
 }
 
+func listAsset(c echo.Context) error {
+	assetType := types.AssetType(c.QueryParam("type"))
+	switch assetType {
+	case "":
+		var asset []types.Asset
+		if err := db.DB().
+			Find(&asset).
+			Error; err != nil {
+			return InternalError(c, err)
+		}
+		return echox.NormalResponse(c, &asset)
+	case types.AssetBasicItemType:
+		var asset []types.Asset
+		if err := db.DB().
+			Where("type = ?", types.AssetBasicItemType).
+			Find(&asset).
+			Error; err != nil {
+			return InternalError(c, err)
+		}
+		return echox.NormalResponse(c, &asset)
+	case types.AssetBookType:
+		var asset []types.Book
+		if err := db.DB().
+			Find(&asset).
+			Error; err != nil {
+			return InternalError(c, err)
+		}
+		return echox.NormalResponse(c, &asset)
+	default:
+		return BadRequest(c, errors.New("asset type is not supported"))
+	}
+}
+
 func getPosition(c echo.Context) error {
 	// 仅支持pos的唯一id
 	id := c.Param("id")
