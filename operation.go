@@ -90,7 +90,116 @@ func getAsset(c echo.Context) error {
 
 func postAsset(c echo.Context) error {
 	// 同时支持新增和修改
-	return nil
+	assetType := types.AssetType(c.QueryParam("type"))
+	switch assetType {
+	case "":
+		return BadRequest(c, errors.New("asset type is required"))
+	case types.AssetBasicItemType:
+		req, err := echox.CheckInput[types.ItemOptRequest](c)
+		if err != nil {
+			return BadRequest(c, err)
+		}
+		var pos types.Position
+		if req.Position != "" {
+			// find position first
+			if err := db.DB().
+				Where("id = ?", req.Position).
+				Take(&pos).
+				Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return NotFound(c, errors.New("position not found"))
+				}
+				return InternalError(c, err)
+			}
+		}
+		var newAsset types.Asset
+		if req.ID == "" {
+			// new
+			newAsset.ID = snowFlake.NextVal()
+		} else {
+			// edit
+			newAsset.ID, err = strconv.ParseInt(req.ID, 10, 64)
+			if err != nil {
+				return BadRequest(c, err)
+			}
+		}
+		newAsset.Type = types.AssetBasicItemType
+		newAsset.Code = req.Code
+		newAsset.Name = req.Name
+		newAsset.Position = pos
+		newAsset.Pic = req.Pic
+		if req.ID == "" {
+			if err := db.DB().
+				Create(&newAsset).
+				Error; err != nil {
+				return InternalError(c, err)
+			}
+		} else {
+			if err := db.DB().
+				Updates(&newAsset).
+				Error; err != nil {
+				return InternalError(c, err)
+			}
+		}
+		return echox.NormalResponse(c, &newAsset)
+	case types.AssetBookType:
+		req, err := echox.CheckInput[types.BookOptRequest](c)
+		if err != nil {
+			return BadRequest(c, err)
+		}
+		var pos types.Position
+		if req.Position != "" {
+			// find position first
+			if err := db.DB().
+				Where("id = ?", req.Position).
+				Take(&pos).
+				Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return NotFound(c, errors.New("position not found"))
+				}
+				return InternalError(c, err)
+			}
+		}
+		var newBook types.Book
+		if req.ID == "" {
+			// new
+			newBook.Asset.ID = snowFlake.NextVal()
+		} else {
+			// edit
+			newBook.Asset.ID, err = strconv.ParseInt(req.ID, 10, 64)
+			if err != nil {
+				return BadRequest(c, err)
+			}
+		}
+		newBook.Asset.Type = types.AssetBookType
+		newBook.Asset.Code = req.Code
+		newBook.Asset.Name = req.Name
+		newBook.Asset.Position = pos
+		newBook.Asset.Pic = req.Pic
+		newBook.Author = req.Author
+		newBook.Publisher = req.Publisher
+		newBook.Specifications = req.Specifications
+		newBook.Tag = req.Tag
+		newBook.Language = req.Language
+		newBook.PurchaseTime = req.PurchaseTime
+		if req.ID == "" {
+			if err := db.DB().
+				Create(&newBook).
+				Error; err != nil {
+				return InternalError(c, err)
+			}
+		} else {
+			if err := db.DB().
+				Session(&gorm.Session{FullSaveAssociations: true}).
+				Updates(&newBook).
+				Error; err != nil {
+				return InternalError(c, err)
+			}
+		}
+		return echox.NormalResponse(c, &newBook)
+	default:
+		return BadRequest(c, errors.New(fmt.Sprintf("unsupported asset type: %s", assetType)))
+	}
 }
 
 func action(c echo.Context) error {

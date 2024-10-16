@@ -10,11 +10,11 @@ type PositionOptRequest struct {
 }
 
 type ItemOptRequest struct {
-	Type     AssetType `json:"type" validate:"required"`
-	Code     string    `json:"code"`
-	Name     string    `json:"name" validate:"required"`
-	Position string    `json:"position"`
-	Pic      string    `json:"pic"`
+	ID       string `json:"id"`
+	Code     string `json:"code"`
+	Name     string `json:"name" validate:"required"`
+	Position string `json:"position"`
+	Pic      string `json:"pic"`
 }
 
 type BookOptRequest struct {
