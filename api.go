@@ -12,4 +12,6 @@ func setupRoutes(e *echo.Echo) {
 	e.POST("/asset", postAsset)
 
 	e.GET("/action/:id/:action", action)
+
+	e.GET("/record/:id", getRecords)
 }

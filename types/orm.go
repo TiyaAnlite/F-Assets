@@ -30,7 +30,7 @@ type AssetOperation string
 
 // Asset 资产表，是所有资产的基表
 type Asset struct {
-	ID         int64           `json:"id" gorm:"column:id;primary_key;comment:唯一主键"`                                                    // 唯一主键
+	ID         string          `json:"id" gorm:"column:id;primary_key;type:bigint;comment:唯一主键"`                                        // 唯一主键
 	Type       AssetType       `json:"type" gorm:"column:type;type:varchar(255);not null;comment:资产类型"`                                 // 资产类型
 	Code       string          `json:"code" gorm:"column:code;type:varchar(255);uniqueIndex:idx_code,type:hash;comment:资产码，一物并不一定会有一码"` // 资产码，一物并不一定会有一码
 	Name       string          `json:"name" gorm:"column:name;type:varchar(255);not null;comment:资产名"`                                  // 资产名
@@ -43,8 +43,8 @@ type Asset struct {
 
 // Record 资产操作记录
 type Record struct {
-	ID         int64          `json:"id" gorm:"column:id;primary_key;comment:记录主键"`                                                // 记录主键
-	AssetID    int64          `json:"asset_id" gorm:"column:asset_id;type:bigint;index:idx_record_asset,type:hash;comment:资产唯一主键"` // 对应资产
+	ID         string         `json:"id" gorm:"column:id;primary_key;type:bigint;comment:记录主键"`                                    // 记录主键
+	AssetID    string         `json:"asset_id" gorm:"column:asset_id;type:bigint;index:idx_record_asset,type:hash;comment:资产唯一主键"` // 对应资产
 	Operation  AssetOperation `json:"operation" gorm:"column:operation;type:char(1);not null;comment:操作"`                          // 操作
 	PositionID string         `json:"position_id" gorm:"column:position_id;type:char(5);comment:位置"`                               // 位置
 	Position   Position       `json:"position" `
@@ -61,7 +61,7 @@ type Position struct {
 
 // Book 图书类型资产
 type Book struct {
-	AssetID        int64       `json:"asset_id" gorm:"column:asset_id;type:bigint;primary_key;comment:资产唯一主键"` // 资产唯一主键
+	AssetID        string      `json:"asset_id" gorm:"column:asset_id;type:bigint;primary_key;comment:资产唯一主键"` // 资产唯一主键
 	Asset          Asset       `json:"asset"`
 	Author         string      `json:"author" gorm:"column:author;type:varchar(255);not null;comment:作者"`                     // 作者
 	Publisher      string      `json:"publisher" gorm:"column:publisher;type:varchar(255);not null;comment:出版/出品/销售方"`        // 出版/出品/销售方

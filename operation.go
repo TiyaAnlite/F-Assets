@@ -102,7 +102,7 @@ func postAsset(c echo.Context) error {
 	assetType := types.AssetType(c.QueryParam("type"))
 	insertRecord := func(asset types.Asset, operation types.AssetOperation, position types.Position) error {
 		newRecord := types.Record{
-			ID:        snowFlake.NextVal(),
+			ID:        strconv.FormatInt(snowFlake.NextVal(), 64),
 			AssetID:   asset.ID,
 			Operation: operation,
 			Position:  position,
@@ -149,13 +149,10 @@ func postAsset(c echo.Context) error {
 		var newAsset types.Asset
 		if req.ID == "" {
 			// new
-			newAsset.ID = snowFlake.NextVal()
+			newAsset.ID = strconv.FormatInt(snowFlake.NextVal(), 64)
 		} else {
 			// edit
-			newAsset.ID, err = strconv.ParseInt(req.ID, 10, 64)
-			if err != nil {
-				return BadRequest(c, err)
-			}
+			newAsset.ID = req.ID
 		}
 		newAsset.Type = types.AssetBasicItemType
 		newAsset.Code = req.Code
@@ -212,13 +209,10 @@ func postAsset(c echo.Context) error {
 		var newBook types.Book
 		if req.ID == "" {
 			// new
-			newBook.Asset.ID = snowFlake.NextVal()
+			newBook.Asset.ID = strconv.FormatInt(snowFlake.NextVal(), 64)
 		} else {
 			// edit
-			newBook.Asset.ID, err = strconv.ParseInt(req.ID, 10, 64)
-			if err != nil {
-				return BadRequest(c, err)
-			}
+			newBook.Asset.ID = req.ID
 		}
 		newBook.Asset.Type = types.AssetBookType
 		newBook.Asset.Code = req.Code
@@ -291,7 +285,7 @@ func action(c echo.Context) error {
 		return InternalError(c, err)
 	}
 	appendRecord := types.Record{
-		ID:       snowFlake.NextVal(),
+		ID:       strconv.FormatInt(snowFlake.NextVal(), 64),
 		Position: pos,
 	}
 	switch act {

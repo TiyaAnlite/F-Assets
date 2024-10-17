@@ -41,6 +41,7 @@ func listAsset(c echo.Context) error {
 		var asset []types.Book
 		if err := db.DB().
 			Preload(clause.Associations).
+			Preload("Asset.Position").
 			Find(&asset).
 			Error; err != nil {
 			return InternalError(c, err)
@@ -68,4 +69,35 @@ func getPosition(c echo.Context) error {
 		return InternalError(c, err)
 	}
 	return echox.NormalResponse(c, &pos)
+}
+
+func getRecords(c echo.Context) error {
+	id, err := types.NewRequestID(c.Param("id"))
+	if err != nil {
+		return BadRequest(c, err)
+	}
+	assetId := id.Identifier()
+	if id.IDType() == types.EAN13IDType {
+		// take id from asset
+		var asset types.Asset
+		if err := db.DB().
+			Scopes(id.QueryScope).
+			Take(&asset).
+			Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return NotFound(c, errors.New("asset not found"))
+			}
+			return InternalError(c, err)
+		}
+		assetId = asset.ID
+	}
+	var records []types.Record
+	if err := db.DB().
+		Where("asset_id = ?", assetId).
+		Order("id desc").
+		Find(&records).
+		Error; err != nil {
+		return InternalError(c, err)
+	}
+	return echox.NormalResponse(c, &records)
 }
