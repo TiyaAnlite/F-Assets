@@ -18,6 +18,7 @@ const (
 
 const (
 	AssetOperationCreate  AssetOperation = "C" // 新建
+	AssetOperationPost    AssetOperation = "P" // 修改
 	AssetOperationEnter   AssetOperation = "E" // 入库
 	AssetOperationLeave   AssetOperation = "L" // 出库
 	AssetOperationDestroy AssetOperation = "D" // 销毁
@@ -34,18 +35,20 @@ type Asset struct {
 	Code       string          `json:"code" gorm:"column:code;type:varchar(255);uniqueIndex:idx_code,type:hash;comment:资产码，一物并不一定会有一码"` // 资产码，一物并不一定会有一码
 	Name       string          `json:"name" gorm:"column:name;type:varchar(255);not null;comment:资产名"`                                  // 资产名
 	Status     AssetStatusType `json:"status" gorm:"column:status;type:char(1);not null;default:O;comment:状态"`                          // 状态
-	Position   Position        `json:"position" gorm:"column:position;type:char(5);foreignKey:id;comment:位置"`                           // 位置
-	LastUpdate time.Time       `json:"last_update" gorm:"column:last_update;autoUpdateTime;not null;comment:更新时间"`                      // 更新时间
-	Pic        string          `json:"pic" gorm:"column:pic;type:varchar(255);comment:实物图片"`                                            // 实物图片
+	PositionID string          `json:"position_id" gorm:"column:position_id;type:char(5);comment:位置"`                                   // 位置
+	Position   Position        `json:"position"`
+	LastUpdate time.Time       `json:"last_update" gorm:"column:last_update;autoUpdateTime;not null;comment:更新时间"` // 更新时间
+	Pic        string          `json:"pic" gorm:"column:pic;type:varchar(255);comment:实物图片"`                       // 实物图片
 }
 
 // Record 资产操作记录
 type Record struct {
-	ID        int64          `json:"id" gorm:"column:id;primary_key;comment:记录主键"`                                                                              // 记录主键
-	Asset     Asset          `json:"asset" gorm:"column:asset;type:bigint UNSIGNED;uniqueIndex:idx_record_asset,type:hash;foreignKey:id;not null;comment:对应资产"` // 对应资产
-	Operation AssetOperation `json:"operation" gorm:"column:operation;type:char(1);not null;comment:操作"`                                                        // 操作
-	Position  Position       `json:"position" gorm:"column:position;type:char(5);foreignKey:id;comment:位置"`                                                     // 位置
-	Time      time.Time      `json:"time" gorm:"column:time;autoCreateTime;not null;comment:操作时间"`                                                              // 操作时间
+	ID         int64          `json:"id" gorm:"column:id;primary_key;comment:记录主键"`                                                // 记录主键
+	AssetID    int64          `json:"asset_id" gorm:"column:asset_id;type:bigint;index:idx_record_asset,type:hash;comment:资产唯一主键"` // 对应资产
+	Operation  AssetOperation `json:"operation" gorm:"column:operation;type:char(1);not null;comment:操作"`                          // 操作
+	PositionID string         `json:"position_id" gorm:"column:position_id;type:char(5);comment:位置"`                               // 位置
+	Position   Position       `json:"position" `
+	Time       time.Time      `json:"time" gorm:"column:time;autoCreateTime;not null;comment:操作时间"` // 操作时间
 }
 
 // Position 资产位置
@@ -58,7 +61,8 @@ type Position struct {
 
 // Book 图书类型资产
 type Book struct {
-	Asset          Asset       `json:"asset" gorm:"column:asset;type:bigint;foreignKey:id;primary_key;comment:资产唯一主键"`        // 资产唯一主键
+	AssetID        int64       `json:"asset_id" gorm:"column:asset_id;type:bigint;primary_key;comment:资产唯一主键"` // 资产唯一主键
+	Asset          Asset       `json:"asset"`
 	Author         string      `json:"author" gorm:"column:author;type:varchar(255);not null;comment:作者"`                     // 作者
 	Publisher      string      `json:"publisher" gorm:"column:publisher;type:varchar(255);not null;comment:出版/出品/销售方"`        // 出版/出品/销售方
 	Specifications string      `json:"specifications" gorm:"column:specifications;type:varchar(255);not null;comment:规格(开本)"` // 规格(开本)

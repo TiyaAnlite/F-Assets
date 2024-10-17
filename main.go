@@ -26,7 +26,7 @@ var (
 
 func init() {
 	testing.Init()
-	klog.InitFlags(nil)
+	// klog.InitFlags(nil)
 	flag.Parse()
 	envx.MustLoadEnv(cfg)
 	if err := db.Open(&cfg.DBConfig, dbx.MySQLProvider); err != nil {
