@@ -102,7 +102,7 @@ func postAsset(c echo.Context) error {
 	assetType := types.AssetType(c.QueryParam("type"))
 	insertRecord := func(asset types.Asset, operation types.AssetOperation, position types.Position) error {
 		newRecord := types.Record{
-			ID:        strconv.FormatInt(snowFlake.NextVal(), 64),
+			ID:        strconv.FormatInt(snowFlake.NextVal(), 10),
 			AssetID:   asset.ID,
 			Operation: operation,
 			Position:  position,
@@ -149,7 +149,7 @@ func postAsset(c echo.Context) error {
 		var newAsset types.Asset
 		if req.ID == "" {
 			// new
-			newAsset.ID = strconv.FormatInt(snowFlake.NextVal(), 64)
+			newAsset.ID = strconv.FormatInt(snowFlake.NextVal(), 10)
 		} else {
 			// edit
 			newAsset.ID = req.ID
@@ -209,7 +209,7 @@ func postAsset(c echo.Context) error {
 		var newBook types.Book
 		if req.ID == "" {
 			// new
-			newBook.Asset.ID = strconv.FormatInt(snowFlake.NextVal(), 64)
+			newBook.Asset.ID = strconv.FormatInt(snowFlake.NextVal(), 10)
 		} else {
 			// edit
 			newBook.Asset.ID = req.ID
@@ -285,7 +285,7 @@ func action(c echo.Context) error {
 		return InternalError(c, err)
 	}
 	appendRecord := types.Record{
-		ID:       strconv.FormatInt(snowFlake.NextVal(), 64),
+		ID:       strconv.FormatInt(snowFlake.NextVal(), 10),
 		Position: pos,
 	}
 	switch act {
@@ -308,6 +308,7 @@ func action(c echo.Context) error {
 	appendRecord.AssetID = asset.ID
 	asset.Status = act
 	asset.PositionID = pos.ID
+	asset.Position = pos
 	if err := db.DB().
 		Select("status", "position_id").
 		Updates(&asset).
@@ -319,5 +320,5 @@ func action(c echo.Context) error {
 		Error; err != nil {
 		return InternalError(c, err)
 	}
-	return echox.NormalEmptyResponse(c)
+	return echox.NormalResponse(c, &asset)
 }
