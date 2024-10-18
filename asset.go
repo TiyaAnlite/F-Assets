@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/TiyaAnlite/F-Assests/types"
 	"github.com/TiyaAnlite/FocotServicesCommon/echox"
+	"github.com/duke-git/lancet/v2/slice"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -11,7 +12,9 @@ import (
 
 func listPosition(c echo.Context) error {
 	var pos []types.Position
-	if err := db.DB().Find(&pos).Error; err != nil {
+	if err := db.DB().
+		Order("create_time").
+		Find(&pos).Error; err != nil {
 		return InternalError(c, err)
 	}
 	return echox.NormalResponse(c, &pos)
@@ -31,6 +34,7 @@ func listAsset(c echo.Context) error {
 	case types.AssetBasicItemType:
 		var asset []types.Asset
 		if err := db.DB().
+			Order("last_update desc").
 			Where("type = ?", types.AssetBasicItemType).
 			Find(&asset).
 			Error; err != nil {
@@ -46,6 +50,9 @@ func listAsset(c echo.Context) error {
 			Error; err != nil {
 			return InternalError(c, err)
 		}
+		slice.SortBy(asset, func(a, b types.Book) bool {
+			return a.Asset.LastUpdate.Before(b.Asset.LastUpdate)
+		})
 		return echox.NormalResponse(c, &asset)
 	default:
 		return BadRequest(c, errors.New("asset type is not supported"))

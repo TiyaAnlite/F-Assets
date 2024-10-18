@@ -3,15 +3,16 @@ module github.com/TiyaAnlite/F-Assests
 go 1.23.2
 
 require (
+	github.com/GUAIK-ORG/go-snowflake v0.0.0-20200116064823-220c4260e85f
 	github.com/TiyaAnlite/FocotServicesCommon v0.0.0-20240725045426-2eb4c7e7ea81
 	github.com/duke-git/lancet/v2 v2.2.7
 	github.com/jackc/pgx/v5 v5.3.0
 	github.com/labstack/echo/v4 v4.11.3
+	gorm.io/gorm v1.25.4
 	k8s.io/klog/v2 v2.90.0
 )
 
 require (
-	github.com/GUAIK-ORG/go-snowflake v0.0.0-20200116064823-220c4260e85f // indirect
 	github.com/caarlos0/env/v6 v6.10.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -52,6 +53,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.22.0 // indirect
 	go.opentelemetry.io/otel/trace v1.22.0 // indirect
 	golang.org/x/crypto v0.19.0 // indirect
+	golang.org/x/exp v0.0.0-20221208152030-732eee02a75a // indirect
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
@@ -59,5 +61,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.4.7 // indirect
 	gorm.io/driver/postgres v1.5.0 // indirect
-	gorm.io/gorm v1.25.4 // indirect
 )

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"github.com/TiyaAnlite/FocotServicesCommon/envx"
 	"github.com/duke-git/lancet/v2/netutil"
 	"k8s.io/klog/v2"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -15,11 +17,13 @@ type config struct {
 }
 
 var (
-	cfg    = &config{}
-	buffer string
-	client = netutil.NewHttpClientWithConfig(&netutil.HttpClientConfig{
+	cfg     = &config{}
+	buffer  string
+	scanner = bufio.NewScanner(os.Stdin)
+	client  = netutil.NewHttpClientWithConfig(&netutil.HttpClientConfig{
 		HandshakeTimeout: time.Second * 3,
 		ResponseTimeout:  time.Second * 3,
+		Compressed:       true,
 	})
 )
 

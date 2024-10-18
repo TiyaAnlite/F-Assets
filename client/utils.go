@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"k8s.io/klog/v2"
 	"net/http"
@@ -21,9 +20,13 @@ type warpedResponse[T any] struct {
 }
 
 func inputScanner() {
-	_, err := fmt.Scanln(&buffer)
-	if err != nil {
-		klog.Fatalf("failed input scanner: %s", err.Error())
+	if ok := scanner.Scan(); ok {
+		buffer = scanner.Text()
+	} else {
+		if scanner.Err() != nil {
+			klog.Fatalf("failed input scanner: %s", scanner.Err().Error())
+		}
+		klog.Fatalf("scanner end")
 	}
 }
 

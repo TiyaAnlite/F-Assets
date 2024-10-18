@@ -30,7 +30,7 @@ func position() {
 		inputScanner()
 		switch buffer {
 		case "h":
-			fmt.Print("list: l\nadd: a\nquit: q")
+			fmt.Println("list: l\nadd: a\nquit: q")
 		case "l":
 			listPosition()
 		case "a":
