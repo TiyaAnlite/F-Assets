@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	"github.com/TiyaAnlite/F-Assests/types"
+	. "github.com/TiyaAnlite/F-Assests/types"
 	"github.com/TiyaAnlite/FocotServicesCommon/echox"
 	"github.com/duke-git/lancet/v2/slice"
 	"github.com/labstack/echo/v4"
@@ -11,7 +11,7 @@ import (
 )
 
 func listPosition(c echo.Context) error {
-	var pos []types.Position
+	var pos []Position
 	if err := db.DB().
 		Order("create_time").
 		Find(&pos).Error; err != nil {
@@ -21,28 +21,28 @@ func listPosition(c echo.Context) error {
 }
 
 func listAsset(c echo.Context) error {
-	assetType := types.AssetType(c.QueryParam("type"))
+	assetType := AssetType(c.QueryParam("type"))
 	switch assetType {
 	case "":
-		var asset []types.Asset
+		var asset []Asset
 		if err := db.DB().
 			Find(&asset).
 			Error; err != nil {
 			return InternalError(c, err)
 		}
 		return echox.NormalResponse(c, &asset)
-	case types.AssetBasicItemType:
-		var asset []types.Asset
+	case AssetBasicItemType:
+		var asset []Asset
 		if err := db.DB().
 			Order("last_update desc").
-			Where("type = ?", types.AssetBasicItemType).
+			Where("type = ?", AssetBasicItemType).
 			Find(&asset).
 			Error; err != nil {
 			return InternalError(c, err)
 		}
 		return echox.NormalResponse(c, &asset)
-	case types.AssetBookType:
-		var asset []types.Book
+	case AssetBookType:
+		var asset []Book
 		if err := db.DB().
 			Preload(clause.Associations).
 			Preload("Asset.Position").
@@ -50,7 +50,7 @@ func listAsset(c echo.Context) error {
 			Error; err != nil {
 			return InternalError(c, err)
 		}
-		slice.SortBy(asset, func(a, b types.Book) bool {
+		slice.SortBy(asset, func(a, b Book) bool {
 			return a.Asset.LastUpdate.Before(b.Asset.LastUpdate)
 		})
 		return echox.NormalResponse(c, &asset)
@@ -65,7 +65,7 @@ func getPosition(c echo.Context) error {
 	if id == "" {
 		return BadRequest(c, errors.New("id is required"))
 	}
-	pos := types.Position{}
+	pos := Position{}
 	if err := db.DB().
 		Where("id = ?", id).
 		Take(&pos).
@@ -79,29 +79,23 @@ func getPosition(c echo.Context) error {
 }
 
 func getRecords(c echo.Context) error {
-	id, err := types.NewRequestID(c.Param("id"))
+	id, err := NewRequestID(c.Param("id"))
 	if err != nil {
 		return BadRequest(c, err)
 	}
-	assetId := id.Identifier()
-	if id.IDType() == types.EAN13IDType {
-		// take id from asset
-		var asset types.Asset
-		if err := db.DB().
-			Scopes(id.QueryScope).
-			Take(&asset).
-			Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return NotFound(c, errors.New("asset not found"))
-			}
-			return InternalError(c, err)
-		}
-		assetId = asset.ID
-	}
-	var records []types.Record
+	var asset Asset
 	if err := db.DB().
-		Where("asset_id = ?", assetId).
-		Order("id desc").
+		Scopes(id.QueryScope).
+		Take(&asset, id).
+		Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return NotFound(c, errors.New("asset not found"))
+		}
+		return InternalError(c, err)
+	}
+	var records []Record
+	if err := db.DB().
+		Where("asset_id = ?", asset.ID).
 		Find(&records).
 		Error; err != nil {
 		return InternalError(c, err)

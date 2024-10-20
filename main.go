@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/GUAIK-ORG/go-snowflake/snowflake"
-	"github.com/TiyaAnlite/F-Assests/types"
+	. "github.com/TiyaAnlite/F-Assests/types"
 	"github.com/TiyaAnlite/FocotServicesCommon/dbx"
 	"github.com/TiyaAnlite/FocotServicesCommon/echox"
 	"github.com/TiyaAnlite/FocotServicesCommon/envx"
@@ -34,10 +34,10 @@ func init() {
 	}
 	// Migrate
 	migrator := db.DB().Migrator()
-	xerror.TryUnwrap("", migrator.AutoMigrate(&types.Position{}))
-	xerror.TryUnwrap("", migrator.AutoMigrate(&types.Asset{}))
-	xerror.TryUnwrap("", migrator.AutoMigrate(&types.Record{}))
-	xerror.TryUnwrap("", migrator.AutoMigrate(&types.Book{}))
+	xerror.TryUnwrap("", migrator.AutoMigrate(&Position{}))
+	xerror.TryUnwrap("", migrator.AutoMigrate(&Asset{}))
+	xerror.TryUnwrap("", migrator.AutoMigrate(&Record{}))
+	xerror.TryUnwrap("", migrator.AutoMigrate(&Book{}))
 	snowFlake, _ = snowflake.NewSnowflake(int64(0), int64(0))
 }
 

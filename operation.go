@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/TiyaAnlite/F-Assests/types"
+	. "github.com/TiyaAnlite/F-Assests/types"
 	"github.com/TiyaAnlite/FocotServicesCommon/echox"
 	"github.com/duke-git/lancet/v2/random"
 	"github.com/labstack/echo/v4"
@@ -13,11 +13,11 @@ import (
 
 func postPosition(c echo.Context) error {
 	// 同时支持新增和修改
-	req, err := echox.CheckInput[types.PositionOptRequest](c)
+	req, err := echox.CheckInput[PositionOptRequest](c)
 	if err != nil {
 		return BadRequest(c, err)
 	}
-	var newPos types.Position
+	var newPos Position
 	if req.ID == "" {
 		// new
 		newPos.ID = random.RandNumeral(5)
@@ -49,14 +49,14 @@ func postPosition(c echo.Context) error {
 
 func getAsset(c echo.Context) error {
 	// 同时支持id和code
-	id, err := types.NewRequestID(c.Param("id"))
+	id, err := NewRequestID(c.Param("id"))
 	if err != nil {
 		return BadRequest(c, err)
 	}
-	assetType := types.AssetType(c.QueryParam("type"))
+	assetType := AssetType(c.QueryParam("type"))
 	switch assetType {
 	case "":
-		var asset types.Asset
+		var asset Asset
 		if err := db.DB().
 			Scopes(id.QueryScope).
 			Take(&asset).
@@ -67,11 +67,11 @@ func getAsset(c echo.Context) error {
 			return InternalError(c, err)
 		}
 		return echox.NormalResponse(c, asset)
-	case types.AssetBasicItemType:
-		var asset types.Asset
+	case AssetBasicItemType:
+		var asset Asset
 		if err := db.DB().
 			Scopes(id.QueryScope).
-			Where("type = ?", types.AssetBasicItemType).
+			Where("type = ?", AssetBasicItemType).
 			Take(&asset).
 			Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -80,8 +80,8 @@ func getAsset(c echo.Context) error {
 			return InternalError(c, err)
 		}
 		return echox.NormalResponse(c, asset)
-	case types.AssetBookType:
-		var asset []types.Book
+	case AssetBookType:
+		var asset []Book
 		if err := db.DB().
 			Scopes(id.QueryScope).
 			Association("asset").
@@ -99,9 +99,9 @@ func getAsset(c echo.Context) error {
 
 func postAsset(c echo.Context) error {
 	// 同时支持新增和修改
-	assetType := types.AssetType(c.QueryParam("type"))
-	insertRecord := func(asset types.Asset, operation types.AssetOperation, position types.Position) error {
-		newRecord := types.Record{
+	assetType := AssetType(c.QueryParam("type"))
+	insertRecord := func(asset Asset, operation AssetOperation, position Position) error {
+		newRecord := Record{
 			ID:        strconv.FormatInt(snowFlake.NextVal(), 10),
 			AssetID:   asset.ID,
 			Operation: operation,
@@ -120,8 +120,8 @@ func postAsset(c echo.Context) error {
 	switch assetType {
 	case "":
 		return BadRequest(c, errors.New("asset type is required"))
-	case types.AssetBasicItemType:
-		req, err := echox.CheckInput[types.ItemOptRequest](c)
+	case AssetBasicItemType:
+		req, err := echox.CheckInput[ItemOptRequest](c)
 		if err != nil {
 			return BadRequest(c, err)
 		}
@@ -129,7 +129,7 @@ func postAsset(c echo.Context) error {
 		if req.Code == "" {
 			omitField = append(omitField, "code")
 		}
-		var pos types.Position
+		var pos Position
 		if req.Position != "" {
 			// find position first
 			if err := db.DB().
@@ -146,7 +146,7 @@ func postAsset(c echo.Context) error {
 		if pos.ID == "" {
 			omitField = append(omitField, "position_id")
 		}
-		var newAsset types.Asset
+		var newAsset Asset
 		if req.ID == "" {
 			// new
 			newAsset.ID = strconv.FormatInt(snowFlake.NextVal(), 10)
@@ -154,7 +154,7 @@ func postAsset(c echo.Context) error {
 			// edit
 			newAsset.ID = req.ID
 		}
-		newAsset.Type = types.AssetBasicItemType
+		newAsset.Type = AssetBasicItemType
 		newAsset.Code = req.Code
 		newAsset.Name = req.Name
 		newAsset.Position = pos
@@ -166,7 +166,7 @@ func postAsset(c echo.Context) error {
 				Error; err != nil {
 				return InternalError(c, err)
 			}
-			if err := insertRecord(newAsset, types.AssetOperationCreate, pos); err != nil {
+			if err := insertRecord(newAsset, AssetOperationCreate, pos); err != nil {
 				return InternalError(c, err)
 			}
 		} else {
@@ -175,13 +175,13 @@ func postAsset(c echo.Context) error {
 				Error; err != nil {
 				return InternalError(c, err)
 			}
-			if err := insertRecord(newAsset, types.AssetOperationPost, pos); err != nil {
+			if err := insertRecord(newAsset, AssetOperationPost, pos); err != nil {
 				return InternalError(c, err)
 			}
 		}
 		return echox.NormalResponse(c, &newAsset)
-	case types.AssetBookType:
-		req, err := echox.CheckInput[types.BookOptRequest](c)
+	case AssetBookType:
+		req, err := echox.CheckInput[BookOptRequest](c)
 		if err != nil {
 			return BadRequest(c, err)
 		}
@@ -189,7 +189,7 @@ func postAsset(c echo.Context) error {
 		if req.Code == "" {
 			omitField = append(omitField, "Asset.code")
 		}
-		var pos types.Position
+		var pos Position
 		if req.Position != "" {
 			// find position first
 			if err := db.DB().
@@ -206,7 +206,7 @@ func postAsset(c echo.Context) error {
 		if pos.ID == "" {
 			omitField = append(omitField, "Asset.position_id")
 		}
-		var newBook types.Book
+		var newBook Book
 		if req.ID == "" {
 			// new
 			newBook.Asset.ID = strconv.FormatInt(snowFlake.NextVal(), 10)
@@ -214,7 +214,7 @@ func postAsset(c echo.Context) error {
 			// edit
 			newBook.Asset.ID = req.ID
 		}
-		newBook.Asset.Type = types.AssetBookType
+		newBook.Asset.Type = AssetBookType
 		newBook.Asset.Code = req.Code
 		newBook.Asset.Name = req.Name
 		newBook.Asset.Position = pos
@@ -232,7 +232,7 @@ func postAsset(c echo.Context) error {
 				Error; err != nil {
 				return InternalError(c, err)
 			}
-			if err := insertRecord(newBook.Asset, types.AssetOperationCreate, pos); err != nil {
+			if err := insertRecord(newBook.Asset, AssetOperationCreate, pos); err != nil {
 				return InternalError(c, err)
 			}
 		} else {
@@ -243,7 +243,7 @@ func postAsset(c echo.Context) error {
 				Error; err != nil {
 				return InternalError(c, err)
 			}
-			if err := insertRecord(newBook.Asset, types.AssetOperationPost, pos); err != nil {
+			if err := insertRecord(newBook.Asset, AssetOperationPost, pos); err != nil {
 				return InternalError(c, err)
 			}
 		}
@@ -254,17 +254,17 @@ func postAsset(c echo.Context) error {
 }
 
 func action(c echo.Context) error {
-	id, err := types.NewRequestID(c.Param("id"))
+	id, err := NewRequestID(c.Param("id"))
 	if err != nil {
 		return BadRequest(c, err)
 	}
-	act := types.AssetStatusType(c.Param("action"))
+	act := AssetStatusType(c.Param("action"))
 	position := c.QueryParam("position")
 	if position == "" {
 		return BadRequest(c, errors.New("query param position is required"))
 	}
 	// find first
-	var asset types.Asset
+	var asset Asset
 	if err := db.DB().
 		Scopes(id.QueryScope).
 		Take(&asset).
@@ -274,7 +274,7 @@ func action(c echo.Context) error {
 		}
 		return InternalError(c, err)
 	}
-	var pos types.Position
+	var pos Position
 	if err := db.DB().
 		Where("id = ?", position).
 		Take(&pos).
@@ -284,26 +284,26 @@ func action(c echo.Context) error {
 		}
 		return InternalError(c, err)
 	}
-	appendRecord := types.Record{
+	appendRecord := Record{
 		ID:       strconv.FormatInt(snowFlake.NextVal(), 10),
 		Position: pos,
 	}
 	switch act {
-	case types.AssetStatusOutbound:
-		if asset.Status != types.AssetStatusInbound {
+	case AssetStatusOutbound:
+		if asset.Status != AssetStatusInbound {
 			return BadRequest(c, errors.New(fmt.Sprintf("invalid asset status: %s", asset.Status)))
 		}
-		appendRecord.Operation = types.AssetOperationLeave
-	case types.AssetStatusInbound:
-		if asset.Status != types.AssetStatusOutbound {
+		appendRecord.Operation = AssetOperationLeave
+	case AssetStatusInbound:
+		if asset.Status != AssetStatusOutbound {
 			return BadRequest(c, errors.New(fmt.Sprintf("invalid asset status: %s", asset.Status)))
 		}
-		appendRecord.Operation = types.AssetOperationEnter
-	case types.AssetStatusAbandon:
-		if asset.Status == types.AssetStatusAbandon {
+		appendRecord.Operation = AssetOperationEnter
+	case AssetStatusAbandon:
+		if asset.Status == AssetStatusAbandon {
 			return BadRequest(c, errors.New(fmt.Sprintf("invalid asset status: %s", asset.Status)))
 		}
-		appendRecord.Operation = types.AssetOperationDestroy
+		appendRecord.Operation = AssetOperationDestroy
 	}
 	appendRecord.AssetID = asset.ID
 	asset.Status = act
