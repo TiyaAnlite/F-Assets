@@ -38,6 +38,7 @@ func init() {
 	xerror.TryUnwrap("", migrator.AutoMigrate(&Asset{}))
 	xerror.TryUnwrap("", migrator.AutoMigrate(&Record{}))
 	xerror.TryUnwrap("", migrator.AutoMigrate(&Book{}))
+	xerror.TryUnwrap("", migrator.AutoMigrate(&CD{}))
 	snowFlake, _ = snowflake.NewSnowflake(int64(0), int64(0))
 }
 

@@ -70,3 +70,13 @@ type Book struct {
 	Language       string      `json:"language" gorm:"column:language;type:varchar(255);not null;comment:语言"`                 // 语言
 	PurchaseTime   pgtype.Date `json:"purchase_time" gorm:"column:purchase_time;comment:购入时间"`                                // 购入时间
 }
+
+// CD 专辑类型资产
+type CD struct {
+	AssetID      string      `json:"asset_id" gorm:"column:asset_id;type:bigint;primary_key;comment:资产唯一主键"` // 资产唯一主键
+	Asset        Asset       `json:"asset"`
+	Author       string      `json:"author" gorm:"column:author;type:varchar(255);not null;comment:作者"`                 // 作者
+	Publisher    string      `json:"publisher" gorm:"column:publisher;type:varchar(255);not null;comment:出版/出品/社团/销售方"` // 出版/出品/社团/销售方
+	Tag          string      `json:"tag" gorm:"column:tag;type:varchar(255);comment:标签"`                                // 标签
+	PurchaseTime pgtype.Date `json:"purchase_time" gorm:"column:purchase_time;comment:购入时间"`                            // 购入时间
+}
