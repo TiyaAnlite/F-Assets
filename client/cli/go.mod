@@ -1,4 +1,4 @@
-module github.com/TiyaAnlite/F-Assests/client
+module github.com/TiyaAnlite/F-Assests/client/cli
 
 go 1.23.2
 

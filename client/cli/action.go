@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/TiyaAnlite/F-Assests/types"
 	"github.com/xlab/tablewriter"
-	"strings"
 )
 
 func printBasicAsset(a []types.Asset) {

@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"k8s.io/klog/v2"
 	"net/http"
 	"time"
+
+	"k8s.io/klog/v2"
 )
 
 const (

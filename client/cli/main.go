@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/TiyaAnlite/FocotServicesCommon/envx"
-	"github.com/duke-git/lancet/v2/netutil"
-	"k8s.io/klog/v2"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/TiyaAnlite/FocotServicesCommon/envx"
+	"github.com/duke-git/lancet/v2/netutil"
+	"k8s.io/klog/v2"
 )
 
 type config struct {
