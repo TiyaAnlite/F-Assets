@@ -1,13 +1,16 @@
 package types
 
+import "C"
 import (
-	"github.com/jackc/pgx/v5/pgtype"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const (
 	AssetBasicItemType AssetType = "ITEM"
 	AssetBookType      AssetType = "BOOK"
+	AssetCDType        AssetType = "CD"
 )
 
 const (
@@ -41,6 +44,10 @@ type Asset struct {
 	Pic        string          `json:"pic" gorm:"column:pic;type:varchar(255);comment:实物图片"`                       // 实物图片
 }
 
+func (a *Asset) GetAsset() *Asset {
+	return a
+}
+
 // Record 资产操作记录
 type Record struct {
 	ID         string         `json:"id" gorm:"column:id;primary_key;type:bigint;comment:记录主键"`                                    // 记录主键
@@ -61,22 +68,47 @@ type Position struct {
 
 // Book 图书类型资产
 type Book struct {
-	AssetID        string      `json:"asset_id" gorm:"column:asset_id;type:bigint;primary_key;comment:资产唯一主键"` // 资产唯一主键
-	Asset          Asset       `json:"asset"`
-	Author         string      `json:"author" gorm:"column:author;type:varchar(255);not null;comment:作者"`                     // 作者
-	Publisher      string      `json:"publisher" gorm:"column:publisher;type:varchar(255);not null;comment:出版/出品/销售方"`        // 出版/出品/销售方
-	Specifications string      `json:"specifications" gorm:"column:specifications;type:varchar(255);not null;comment:规格(开本)"` // 规格(开本)
-	Tag            string      `json:"tag" gorm:"column:tag;type:varchar(255);comment:标签"`                                    // 标签
-	Language       string      `json:"language" gorm:"column:language;type:varchar(255);not null;comment:语言"`                 // 语言
-	PurchaseTime   pgtype.Date `json:"purchase_time" gorm:"column:purchase_time;comment:购入时间"`                                // 购入时间
+	AssetID        string       `json:"asset_id" gorm:"column:asset_id;type:bigint;primary_key;comment:资产唯一主键"` // 资产唯一主键
+	Asset          Asset        `json:"asset"`
+	Author         string       `json:"author" gorm:"column:author;type:varchar(255);not null;comment:作者"`              // 作者
+	Publisher      string       `json:"publisher" gorm:"column:publisher;type:varchar(255);not null;comment:出版/出品/销售方"` // 出版/出品/销售方
+	Specifications string       `json:"specifications" gorm:"column:specifications;type:varchar(255);comment:规格(开本)"`   // 规格(开本)
+	Tag            string       `json:"tag" gorm:"column:tag;type:varchar(255);comment:标签"`                             // 标签
+	Language       LanguageType `json:"language" gorm:"column:language;type:varchar(255);not null;comment:语言"`          // 语言
+	PurchaseTime   pgtype.Date  `json:"purchase_time" gorm:"column:purchase_time;comment:购入时间"`                         // 购入时间
+	Price          uint32       `json:"price" gorm:"column:price;comment:标价"`                                           // 标价
+	PurchasePrice  uint32       `json:"purchase_price" gorm:"column:purchase_price;comment:购入价格"`                       // 购入价格
+	PriceUnit      string       `json:"price_unit" gorm:"column:price_unit;type:varchar(255);comment:价格单位"`             // 价格单位
+	Signed         bool         `json:"signed" gorm:"column:signed;comment:有无签名"`                                       // 有无签名
+}
+
+func (b *Book) GetAsset() *Asset {
+	return &b.Asset
 }
 
 // CD 专辑类型资产
 type CD struct {
-	AssetID      string      `json:"asset_id" gorm:"column:asset_id;type:bigint;primary_key;comment:资产唯一主键"` // 资产唯一主键
-	Asset        Asset       `json:"asset"`
-	Author       string      `json:"author" gorm:"column:author;type:varchar(255);not null;comment:作者"`                 // 作者
-	Publisher    string      `json:"publisher" gorm:"column:publisher;type:varchar(255);not null;comment:出版/出品/社团/销售方"` // 出版/出品/社团/销售方
-	Tag          string      `json:"tag" gorm:"column:tag;type:varchar(255);comment:标签"`                                // 标签
-	PurchaseTime pgtype.Date `json:"purchase_time" gorm:"column:purchase_time;comment:购入时间"`                            // 购入时间
+	AssetID       string       `json:"asset_id" gorm:"column:asset_id;type:bigint;primary_key;comment:资产唯一主键"` // 资产唯一主键
+	Asset         Asset        `json:"asset"`
+	Author        string       `json:"author" gorm:"column:author;type:varchar(255);not null;comment:作者"`                 // 作者
+	Publisher     string       `json:"publisher" gorm:"column:publisher;type:varchar(255);not null;comment:出版/出品/社团/销售方"` // 出版/出品/社团/销售方
+	Year          uint32       `json:"year" gorm:"column:year;not null;comment:年份"`                                       // 年份
+	Language      LanguageType `json:"language" gorm:"column:language;type:varchar(255);not null;comment:语言"`             // 语言
+	Track         uint32       `json:"track" gorm:"column:track;not null;comment:曲目数"`                                    // 曲目数
+	Tag           string       `json:"tag" gorm:"column:tag;type:varchar(255);comment:标签"`                                // 标签
+	PurchaseTime  pgtype.Date  `json:"purchase_time" gorm:"column:purchase_time;comment:购入时间"`                            // 购入时间
+	Price         uint32       `json:"price" gorm:"column:price;comment:标价"`                                              // 标价
+	PurchasePrice uint32       `json:"purchase_price" gorm:"column:purchase_price;comment:购入价格"`
+	PriceUnit     string       `json:"price_unit" gorm:"column:price_unit;type:varchar(255);comment:价格单位"`
+	Signed        bool         `json:"signed" gorm:"column:signed;comment:有无签名"` // 有无签名
+}
+
+func (c *CD) GetAsset() *Asset {
+	return &c.Asset
+}
+
+type Meta struct {
+	AssetID    string    `json:"asset_id" gorm:"column:asset_id;type:bigint;primary_key;comment:资产唯一主键"`     // 资产唯一主键
+	Data       string    `json:"data" gorm:"column:data;type:text;not null;comment:元数据"`                     // 元数据
+	LastUpdate time.Time `json:"last_update" gorm:"column:last_update;autoUpdateTime;not null;comment:更新时间"` // 更新时间
 }

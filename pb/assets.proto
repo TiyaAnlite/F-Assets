@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "../pb";
+
+message AssetsDB {
+  uint64 update = 1;
+  repeated AssetsMeta assets = 2;
+}
+
+message AssetsMeta {
+  uint64 id = 1;  // 唯一主键
+  uint64 code = 2;  // 资产码，一物并不一定会有一码
+  string name = 3;  // 资产名
+  oneof detail {  // 资产子信息
+    BookAssets book = 4;  // 图书类型资产
+    CDAssets cd = 5;  // 专辑类型资产
+  }
+}
+
+enum Languages {  // 语言类型
+  UnknownLanguage = 0;
+  SimplifiedChinese = 1;  // 简体中文
+  TraditionalChinese = 2;  // 繁体中文
+  Japanese = 3;  // 日语
+}
+
+enum PriceUnit {  // 货币单位
+  UnknownPriceUnit = 0;
+  CNY = 1;  // 人民币
+  JPY = 2;  // 日元
+  USD = 3;  // 美元
+}
+
+message PriceInfo {  // 价格信息
+  PriceUnit unit = 1;  // 货币单位
+  uint32 price = 2;  // 标价
+  uint32 purchase_price = 3;  // 售价
+}
+
+message BookAssets {  // 图书类型资产
+  repeated string author = 1;  // 作者
+  string publisher = 2;  // 出版/出品/销售方
+  repeated string tag = 3;  // 标签
+  Languages language = 4;  // 语言
+  uint64 purchase_time = 5;  // 购入时间
+  PriceInfo price = 6;  // 价格信息
+  bool signed = 7;  // 有无签名
+}
+
+message CDAssets {  // 专辑类型资产
+  repeated string author = 1;  // 作者
+  string publisher = 2;  // 出版/出品/销售方
+  uint32 Year = 3;  // 年份
+  Languages language = 4;  // 语言
+  uint32 track = 5;  // 曲目数
+  repeated string tag = 6;  // 标签
+  uint64 purchase_time = 7;  // 购入时间
+  PriceInfo price = 8;  // 价格信息
+  bool signed = 9;  // 有无签名
+}

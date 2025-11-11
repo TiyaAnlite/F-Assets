@@ -3,12 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strconv"
+
 	. "github.com/TiyaAnlite/F-Assests/types"
 	"github.com/TiyaAnlite/FocotServicesCommon/echox"
 	"github.com/duke-git/lancet/v2/random"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 func postPosition(c echo.Context) error {
@@ -100,22 +101,6 @@ func getAsset(c echo.Context) error {
 func postAsset(c echo.Context) error {
 	// 同时支持新增和修改
 	assetType := AssetType(c.QueryParam("type"))
-	insertRecord := func(asset Asset, operation AssetOperation, position Position) error {
-		newRecord := Record{
-			ID:        strconv.FormatInt(snowFlake.NextVal(), 10),
-			AssetID:   asset.ID,
-			Operation: operation,
-			Position:  position,
-		}
-		q := db.DB()
-		if position.ID == "" {
-			q = q.Omit("position_id")
-		}
-		if err := q.Create(&newRecord).Error; err != nil {
-			return err
-		}
-		return nil
-	}
 	var omitField []string
 	switch assetType {
 	case "":
@@ -125,59 +110,21 @@ func postAsset(c echo.Context) error {
 		if err != nil {
 			return BadRequest(c, err)
 		}
-		// code insert check
-		if req.Code == "" {
-			omitField = append(omitField, "code")
+		asset, isNew, updatedOmitField, shouldReturn, err := commonReqCheck(c, req, omitField, AssetBasicItemType, "")
+		if err != nil {
+			return InternalError(c, err)
 		}
-		var pos Position
-		if req.Position != "" {
-			// find position first
-			if err := db.DB().
-				Where("id = ?", req.Position).
-				Take(&pos).
-				Error; err != nil {
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					return NotFound(c, errors.New("position not found"))
-				}
-				return InternalError(c, err)
-			}
+		if shouldReturn {
+			return nil
 		}
-		// position insert check
-		if pos.ID == "" {
-			omitField = append(omitField, "position_id")
+		omitField = updatedOmitField
+		newAsset := asset
+		shouldReturn, err = createOrUpdate(c, &newAsset, isNew, omitField)
+		if err != nil {
+			return InternalError(c, err)
 		}
-		var newAsset Asset
-		if req.ID == "" {
-			// new
-			newAsset.ID = strconv.FormatInt(snowFlake.NextVal(), 10)
-		} else {
-			// edit
-			newAsset.ID = req.ID
-		}
-		newAsset.Type = AssetBasicItemType
-		newAsset.Code = req.Code
-		newAsset.Name = req.Name
-		newAsset.Position = pos
-		newAsset.Pic = req.Pic
-		if req.ID == "" {
-			if err := db.DB().
-				Omit(omitField...).
-				Create(&newAsset).
-				Error; err != nil {
-				return InternalError(c, err)
-			}
-			if err := insertRecord(newAsset, AssetOperationCreate, pos); err != nil {
-				return InternalError(c, err)
-			}
-		} else {
-			if err := db.DB().
-				Updates(&newAsset).
-				Error; err != nil {
-				return InternalError(c, err)
-			}
-			if err := insertRecord(newAsset, AssetOperationPost, pos); err != nil {
-				return InternalError(c, err)
-			}
+		if shouldReturn {
+			return nil
 		}
 		return echox.NormalResponse(c, &newAsset)
 	case AssetBookType:
@@ -185,69 +132,47 @@ func postAsset(c echo.Context) error {
 		if err != nil {
 			return BadRequest(c, err)
 		}
-		// code insert check
-		if req.Code == "" {
-			omitField = append(omitField, "Asset.code")
+		asset, isNew, updatedOmitField, shouldReturn, err := commonReqCheck(c, &req.ItemOptRequest, omitField, AssetBookType, "Asset")
+		if err != nil {
+			return InternalError(c, err)
 		}
-		var pos Position
-		if req.Position != "" {
-			// find position first
-			if err := db.DB().
-				Where("id = ?", req.Position).
-				Take(&pos).
-				Error; err != nil {
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					return NotFound(c, errors.New("position not found"))
-				}
-				return InternalError(c, err)
-			}
+		if shouldReturn {
+			return nil
 		}
-		// position insert check
-		if pos.ID == "" {
-			omitField = append(omitField, "Asset.position_id")
+		omitField = updatedOmitField
+		newBook := Book{Asset: asset}
+		req.UpdateModel(&newBook)
+		shouldReturn, err = createOrUpdate(c, &newBook, isNew, omitField)
+		if err != nil {
+			return InternalError(c, err)
 		}
-		var newBook Book
-		if req.ID == "" {
-			// new
-			newBook.Asset.ID = strconv.FormatInt(snowFlake.NextVal(), 10)
-		} else {
-			// edit
-			newBook.Asset.ID = req.ID
-		}
-		newBook.Asset.Type = AssetBookType
-		newBook.Asset.Code = req.Code
-		newBook.Asset.Name = req.Name
-		newBook.Asset.Position = pos
-		newBook.Asset.Pic = req.Pic
-		newBook.Author = req.Author
-		newBook.Publisher = req.Publisher
-		newBook.Specifications = req.Specifications
-		newBook.Tag = req.Tag
-		newBook.Language = req.Language
-		newBook.PurchaseTime = req.PurchaseTime
-		if req.ID == "" {
-			if err := db.DB().
-				Omit(omitField...).
-				Create(&newBook).
-				Error; err != nil {
-				return InternalError(c, err)
-			}
-			if err := insertRecord(newBook.Asset, AssetOperationCreate, pos); err != nil {
-				return InternalError(c, err)
-			}
-		} else {
-			if err := db.DB().
-				Session(&gorm.Session{FullSaveAssociations: true}).
-				Omit(omitField...).
-				Updates(&newBook).
-				Error; err != nil {
-				return InternalError(c, err)
-			}
-			if err := insertRecord(newBook.Asset, AssetOperationPost, pos); err != nil {
-				return InternalError(c, err)
-			}
+		if shouldReturn {
+			return nil
 		}
 		return echox.NormalResponse(c, &newBook)
+	case AssetCDType:
+		req, err := echox.CheckInput[CDOptRequest](c)
+		if err != nil {
+			return BadRequest(c, err)
+		}
+		asset, isNew, updatedOmitField, shouldReturn, err := commonReqCheck(c, &req.ItemOptRequest, omitField, AssetCDType, "Asset")
+		if err != nil {
+			return InternalError(c, err)
+		}
+		if shouldReturn {
+			return nil
+		}
+		omitField = updatedOmitField
+		newCD := CD{Asset: asset}
+		req.UpdateModel(&newCD)
+		shouldReturn, err = createOrUpdate(c, &newCD, isNew, omitField)
+		if err != nil {
+			return InternalError(c, err)
+		}
+		if shouldReturn {
+			return nil
+		}
+		return echox.NormalResponse(c, &newCD)
 	default:
 		return BadRequest(c, errors.New(fmt.Sprintf("unsupported asset type: %s", assetType)))
 	}

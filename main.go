@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"testing"
+
 	"github.com/GUAIK-ORG/go-snowflake/snowflake"
 	. "github.com/TiyaAnlite/F-Assests/types"
 	"github.com/TiyaAnlite/FocotServicesCommon/dbx"
@@ -10,7 +12,6 @@ import (
 	"github.com/TiyaAnlite/FocotServicesCommon/utils"
 	"github.com/duke-git/lancet/v2/xerror"
 	"k8s.io/klog/v2"
-	"testing"
 )
 
 type config struct {
@@ -39,6 +40,7 @@ func init() {
 	xerror.TryUnwrap("", migrator.AutoMigrate(&Record{}))
 	xerror.TryUnwrap("", migrator.AutoMigrate(&Book{}))
 	xerror.TryUnwrap("", migrator.AutoMigrate(&CD{}))
+	xerror.TryUnwrap("", migrator.AutoMigrate(&Meta{}))
 	snowFlake, _ = snowflake.NewSnowflake(int64(0), int64(0))
 }
 

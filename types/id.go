@@ -2,8 +2,9 @@ package types
 
 import (
 	"errors"
-	"gorm.io/gorm"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 const (
@@ -45,6 +46,7 @@ func (r *RequestID) Identifier() string {
 func (r *RequestID) IDType() RequestIDType {
 	return r.idType
 }
+
 func (r *RequestID) QueryScope(db *gorm.DB) *gorm.DB {
 	switch r.idType {
 	case UnionIDType:
