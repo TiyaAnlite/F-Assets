@@ -1,3 +1,5 @@
+DOCKER_IMAGE ?= hub.focot.cn/private/f-assets
+
 .PHONY: cli
 cli: prepare build-cli
 
@@ -12,3 +14,11 @@ prepare:
 .PHONY: build-cli
 build-cli:
 	go build -trimpath -v -o build/FAssetsCLI client/cli/*
+
+.PHONY: build-frontend
+build-frontend:
+	cd frontend && yarn build
+
+.PHONY: build-docker
+build-docker: build-frontend
+	docker build -t $(DOCKER_IMAGE):$(shell date +%Y%m%d)-$(shell git rev-parse HEAD | cut -c1-8) --push .

@@ -31,3 +31,4 @@ build
 # node
 node_modules
 .vite
+dist
