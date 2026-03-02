@@ -21,4 +21,6 @@ build-frontend:
 
 .PHONY: build-docker
 build-docker: build-frontend
+	cd frontend && pnpm i
+	cd ..
 	docker build -t $(DOCKER_IMAGE):$(shell date +%Y%m%d)-$(shell git rev-parse HEAD | cut -c1-8) --push .
