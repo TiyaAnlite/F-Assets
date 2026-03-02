@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+
 	. "github.com/TiyaAnlite/F-Assests/types"
 	"github.com/TiyaAnlite/FocotServicesCommon/echox"
 	"github.com/duke-git/lancet/v2/slice"
@@ -96,6 +97,7 @@ func getRecords(c echo.Context) error {
 	var records []Record
 	if err := db.DB().
 		Where("asset_id = ?", asset.ID).
+		Preload(clause.Associations).
 		Find(&records).
 		Error; err != nil {
 		return InternalError(c, err)
