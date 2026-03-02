@@ -1,12 +1,12 @@
 <template>
   <nav
-    style="height: 56px; background: #0F172A; display: flex; align-items: center; padding: 0 32px; gap: 8px; border-bottom: 1px solid #334155;"
+    class="h-14 bg-dark flex items-center px-4 md:px-8 py-2 gap-2 border-b border-color overflow-x-auto"
   >
     <button
       v-for="tab in tabs"
       :key="tab.value"
       :style="tabStyle(tab.value)"
-      style="width: 120px; height: 40px; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.15s;"
+      class="h-10 px-4 rounded-lg cursor-pointer text-sm transition-all duration-150 whitespace-nowrap flex-1 md:flex-none md:w-auto min-w-[80px]"
       @click="emit('update:modelValue', tab.value)"
     >
       {{ tab.label }}

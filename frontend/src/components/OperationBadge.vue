@@ -1,6 +1,7 @@
 <template>
   <span
-    :style="{ backgroundColor: color, borderRadius: '100px', padding: '4px 12px', color: '#fff', fontSize: '13px', fontWeight: 500, display: 'inline-block', whiteSpace: 'nowrap' }"
+    :style="{ backgroundColor: color }"
+    class="rounded-full px-3 py-1 text-white text-xs md:text-sm font-medium inline-block whitespace-nowrap"
   >
     {{ label }}
   </span>

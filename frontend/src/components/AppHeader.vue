@@ -1,17 +1,17 @@
 <template>
   <header
-    style="height: 64px; background: #0F172A; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155;"
+    class="h-16 md:h-20 bg-dark px-4 md:px-8 flex items-center justify-between border-b border-color"
   >
-    <span style="font-size: 20px; font-weight: 600; color: #F8FAFC; letter-spacing: 0.5px;">
+    <span class="text-lg md:text-xl font-semibold text-primary tracking-wide">
       F-Assets
     </span>
     <button
       :style="recordsBtnStyle"
-      style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: opacity 0.15s;"
+      class="flex items-center gap-1.5 px-3 md:px-4 py-2 rounded-lg cursor-pointer text-sm md:text-base font-medium transition-opacity duration-150"
       @click="emit('clickRecords')"
     >
       <History :size="16" />
-      操作记录
+      <span class="hidden sm:inline">操作记录</span>
     </button>
   </header>
 </template>

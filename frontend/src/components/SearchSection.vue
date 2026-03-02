@@ -1,16 +1,16 @@
 <template>
-  <div style="padding: 24px 32px 0;">
+  <div class="px-4 md:px-8 pt-6">
     <!-- Title row -->
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-      <h2 style="font-size: 18px; font-weight: 600; color: #F8FAFC; margin: 0;">资产查询</h2>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <h2 class="text-base md:text-lg font-semibold text-primary m-0">资产查询</h2>
 
-      <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="flex flex-wrap items-center gap-2">
         <!-- Position label (shown only when 'I' mode active) -->
         <span
           v-if="activeMode === 'I' && positionName"
-          style="font-size: 13px; color: #64748B; margin-right: 8px;"
+          class="text-xs text-muted mr-1"
         >
-          位置: {{ positionName }}
+          位置：{{ positionName }}
         </span>
 
         <!-- Mode buttons -->
@@ -18,7 +18,7 @@
           v-for="btn in modeButtons"
           :key="btn.mode"
           :style="modeButtonStyle(btn.mode)"
-          style="width: 56px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s;"
+          class="w-14 h-8 rounded-md cursor-pointer text-xs font-medium transition-all duration-150"
           @click="handleModeClick(btn.mode)"
         >
           {{ btn.label }}
@@ -27,23 +27,17 @@
     </div>
 
     <!-- Search input -->
-    <div style="position: relative; margin-bottom: 24px;">
+    <div class="relative mb-6">
       <input
         ref="inputRef"
         v-model="localInput"
         type="text"
         placeholder="输入资产 ID 或资产码..."
         :style="inputStyle"
-        style="width: 100%; height: 56px; border-radius: 12px; background: #1E293B; color: #F8FAFC; font-size: 15px; padding: 0 56px 0 20px; outline: none; box-sizing: border-box; transition: border-color 0.15s;"
+        class="w-full h-14 rounded-xl bg-card text-primary text-base md:text-lg px-5 pr-14 outline-none box-border transition-border-color"
         @keydown.enter="handleEnter"
         @input="emit('update:modelValue', localInput)"
       />
-      <button
-        style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748B; display: flex; align-items: center;"
-        @click="emit('search', localInput)"
-      >
-        <Search :size="20" />
-      </button>
     </div>
   </div>
 </template>

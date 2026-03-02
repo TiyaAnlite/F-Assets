@@ -1,5 +1,5 @@
 <template>
-  <div style="min-height: 100vh; background: #020617;">
+  <div class="min-h-screen bg-darker">
     <AppHeader @click-records="handleGlobalRecords" />
     <NavTabs v-model="activeTab" />
     <SearchSection
@@ -11,9 +11,9 @@
       @mode-click="handleModeClick"
     />
 
-    <div v-if="errorMsg" style="padding: 0 32px 16px;">
+    <div v-if="errorMsg" class="px-4 md:px-8 pb-4">
       <div
-        style="background: #1E1515; border: 1px solid #DC2626; border-radius: 8px; padding: 12px 16px; color: #DC2626; font-size: 14px;"
+        class="bg-red-900/30 border border-red-500 rounded-lg md:rounded-xl px-4 py-3 text-red-500 text-sm"
       >
         {{ errorMsg }}
       </div>

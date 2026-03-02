@@ -2,27 +2,27 @@
   <!-- Empty state -->
   <div
     v-if="!data"
-    style="min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: #64748B;"
+    class="min-h-[250px] md:min-h-[400px] flex flex-col items-center justify-center gap-4 text-muted"
   >
     <PackageSearch :size="64" stroke-width="1.5" />
-    <p style="font-size: 16px; margin: 0;">等待查询</p>
+    <p class="text-base md:text-lg m-0">等待查询</p>
   </div>
 
   <!-- Data state -->
-  <div v-else style="padding: 0 32px 32px;">
+  <div v-else class="px-4 md:px-8 pb-8">
     <div
-      style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 24px;"
+      class="bg-card border border-color rounded-xl md:rounded-2xl p-4 md:p-6"
     >
       <!-- Card header -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-        <h3 style="font-size: 16px; font-weight: 600; color: #F8FAFC; margin: 0;">资产信息</h3>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
+        <h3 class="text-base md:text-lg font-semibold text-primary m-0">资产信息</h3>
         <StatusBadge :status="baseAsset.status" />
       </div>
 
-      <!-- Fields grid -->
-      <div style="display: flex; gap: 40px; margin-bottom: 20px;">
+      <!-- Fields grid - stacked on mobile, two columns on desktop -->
+      <div class="flex flex-col md:flex-row gap-4 md:gap-10 mb-5">
         <!-- Left column -->
-        <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+        <div class="flex-1 flex flex-col gap-3">
           <FieldRow label="主键" :value="baseAsset.id" />
           <FieldRow label="资产码" :value="baseAsset.code || '—'" />
           <FieldRow label="名称" :value="baseAsset.name" />
@@ -39,11 +39,11 @@
           </template>
         </div>
 
-        <!-- Divider -->
-        <div style="width: 1px; background: #334155; flex-shrink: 0;" />
+        <!-- Divider - hidden on mobile -->
+        <div class="hidden md:block w-px bg-border-color flex-shrink-0" />
 
         <!-- Right column -->
-        <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+        <div class="flex-1 flex flex-col gap-3">
           <FieldRow label="位置" :value="baseAsset.position?.name || baseAsset.position_id || '—'" />
           <template v-if="tab === 'general'">
             <FieldRow label="更新时间" :value="formatTime(baseAsset.last_update)" />
@@ -65,11 +65,12 @@
       </div>
 
       <!-- Divider -->
-      <div style="height: 1px; background: #334155; margin-bottom: 16px;" />
+      <div class="h-px bg-border-color mb-4" />
 
-      <!-- Action bar -->
-      <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+      <!-- Action bar - stacked on mobile -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-end gap-2">
         <a-button
+          class="flex-1 sm:flex-none"
           style="background: #7C3AED; border-color: #7C3AED; color: #fff;"
           @click="handleEdit"
         >
@@ -79,6 +80,7 @@
         <a-button
           :disabled="baseAsset.status !== 'I'"
           :style="baseAsset.status !== 'I' ? { opacity: 0.5, cursor: 'not-allowed' } : {}"
+          class="flex-1 sm:flex-none"
           style="background: #F59E0B; border-color: #F59E0B; color: #fff;"
           @click="emit('checkout')"
         >
@@ -86,6 +88,7 @@
           出库
         </a-button>
         <a-button
+          class="flex-1 sm:flex-none"
           style="background: #2563EB; border-color: #2563EB; color: #fff;"
           @click="emit('viewRecords')"
         >

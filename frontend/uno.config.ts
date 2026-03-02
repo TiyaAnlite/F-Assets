@@ -16,5 +16,20 @@ export default defineConfig({
       'text-secondary': '#94A3B8',
       'text-muted': '#64748B',
     },
+    breakpoints: {
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+    },
+  },
+  shortcuts: {
+    'bg-darker': 'bg-[#020617]',
+    'bg-dark': 'bg-[#0F172A]',
+    'bg-card': 'bg-[#1E293B]',
+    'text-primary': 'text-[#F8FAFC]',
+    'text-secondary': 'text-[#94A3B8]',
+    'text-muted': 'text-[#64748B]',
+    'border-color': 'border-[#334155]',
   },
 })

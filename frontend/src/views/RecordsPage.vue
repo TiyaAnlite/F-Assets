@@ -1,23 +1,23 @@
 <template>
-  <div style="min-height: 100vh; background: #020617;">
+  <div class="min-h-screen bg-darker">
     <AppHeader records-variant="outline" @click-records="router.back()" />
 
-    <div style="padding: 24px 32px;">
+    <div class="px-4 md:px-8 py-6">
       <!-- Page title -->
-      <div style="margin-bottom: 20px;">
-        <h2 style="font-size: 20px; font-weight: 600; color: #F8FAFC; margin: 0 0 4px;">操作记录</h2>
-        <p style="color: #64748B; font-size: 14px; margin: 0;">
+      <div class="mb-5">
+        <h2 class="text-lg md:text-xl font-semibold text-primary mb-1">操作记录</h2>
+        <p class="text-muted text-sm md:text-base m-0">
           {{ assetName || props.id }}
-          <span v-if="assetCode" style="color: #475569; margin-left: 8px;">{{ assetCode }}</span>
+          <span v-if="assetCode" class="text-gray-600 ml-2">{{ assetCode }}</span>
         </p>
       </div>
 
       <!-- Filter -->
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-        <span style="color: #94A3B8; font-size: 14px;">操作类型</span>
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3 mb-4">
+        <span class="text-secondary text-sm">操作类型</span>
         <a-select
           v-model="filterOperation"
-          style="width: 140px;"
+          class="w-full sm:w-36"
           @change="currentPage = 1"
         >
           <a-option value="">全部</a-option>
@@ -27,14 +27,14 @@
         </a-select>
       </div>
 
-      <!-- Table -->
+      <!-- Table container with horizontal scroll on mobile -->
       <div
-        style="background: #1E293B; border: 1px solid #334155; border-radius: 12px; overflow: hidden;"
+        class="bg-card border border-color rounded-xl md:rounded-2xl overflow-hidden"
       >
         <!-- Loading -->
         <div
           v-if="loading"
-          style="display: flex; justify-content: center; align-items: center; height: 200px; color: #64748B;"
+          class="flex justify-center items-center h-48 md:h-52 text-muted"
         >
           <a-spin />
         </div>
@@ -42,49 +42,53 @@
         <!-- Error -->
         <div
           v-else-if="fetchError"
-          style="display: flex; justify-content: center; align-items: center; height: 200px; color: #DC2626; font-size: 14px;"
+          class="flex justify-center items-center h-48 md:h-52 text-red-500 text-sm"
         >
           {{ fetchError }}
         </div>
 
         <!-- Table content -->
         <template v-else>
-          <!-- Header -->
-          <div
-            style="display: grid; grid-template-columns: 200px 80px 1fr 180px; padding: 12px 20px; border-bottom: 1px solid #334155;"
-          >
-            <span style="color: #94A3B8; font-size: 13px; font-weight: 500;">记录 ID</span>
-            <span style="color: #94A3B8; font-size: 13px; font-weight: 500;">操作</span>
-            <span style="color: #94A3B8; font-size: 13px; font-weight: 500;">位置</span>
-            <span style="color: #94A3B8; font-size: 13px; font-weight: 500;">时间</span>
-          </div>
+          <!-- Scrollable wrapper for mobile -->
+          <div class="overflow-x-auto">
+            <!-- Table -->
+            <div class="min-w-[500px] md:min-w-0">
+              <!-- Header -->
+              <div
+                class="grid grid-cols-[1fr_70px_1fr_140px] md:grid-cols-[200px_80px_1fr_180px] px-4 md:px-5 py-3 border-b border-color"
+              >
+                <span class="text-secondary text-xs md:text-sm font-medium">记录 ID</span>
+                <span class="text-secondary text-xs md:text-sm font-medium">操作</span>
+                <span class="text-secondary text-xs md:text-sm font-medium">位置</span>
+                <span class="text-secondary text-xs md:text-sm font-medium">时间</span>
+              </div>
 
-          <!-- Rows -->
-          <div
-            v-for="record in paginatedRecords"
-            :key="record.id"
-            style="display: grid; grid-template-columns: 200px 80px 1fr 180px; padding: 14px 20px; border-bottom: 1px solid #1E293B; transition: background 0.1s;"
-            @mouseenter="(e) => ((e.currentTarget as HTMLElement).style.background = '#263248')"
-            @mouseleave="(e) => ((e.currentTarget as HTMLElement).style.background = 'transparent')"
-          >
-            <span style="color: #94A3B8; font-size: 13px; font-family: monospace; word-break: break-all;">
-              {{ record.id }}
-            </span>
-            <span>
-              <OperationBadge :operation="record.operation" />
-            </span>
-            <span style="color: #F8FAFC; font-size: 13px;">
-              {{ record.position?.name || record.position_id || '—' }}
-            </span>
-            <span style="color: #64748B; font-size: 13px;">
-              {{ formatTime(record.time) }}
-            </span>
+              <!-- Rows -->
+              <div
+                v-for="record in paginatedRecords"
+                :key="record.id"
+                class="grid grid-cols-[1fr_70px_1fr_140px] md:grid-cols-[200px_80px_1fr_180px] px-4 md:px-5 py-3 md:py-3.5 border-b border-darker transition-colors duration-100 hover:bg-slate-700/50"
+              >
+                <span class="text-secondary text-xs md:text-sm font-mono break-all pr-2">
+                  {{ record.id }}
+                </span>
+                <span>
+                  <OperationBadge :operation="record.operation" />
+                </span>
+                <span class="text-primary text-xs md:text-sm truncate pr-2">
+                  {{ record.position?.name || record.position_id || '—' }}
+                </span>
+                <span class="text-muted text-xs md:text-sm">
+                  {{ formatTime(record.time) }}
+                </span>
+              </div>
+            </div>
           </div>
 
           <!-- Empty state -->
           <div
             v-if="filteredRecords.length === 0"
-            style="display: flex; justify-content: center; align-items: center; height: 160px; color: #64748B; font-size: 14px;"
+            class="flex justify-center items-center h-40 text-muted text-sm"
           >
             暂无记录
           </div>
@@ -94,13 +98,14 @@
       <!-- Pagination -->
       <div
         v-if="filteredRecords.length > pageSize"
-        style="display: flex; justify-content: flex-end; margin-top: 16px;"
+        class="flex justify-end mt-4"
       >
         <a-pagination
           v-model:current="currentPage"
           :total="filteredRecords.length"
           :page-size="pageSize"
           :show-total="true"
+          :simple="isMobile"
         />
       </div>
     </div>
@@ -108,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
 import OperationBadge from '@/components/OperationBadge.vue'
@@ -132,6 +137,7 @@ const fetchError = ref('')
 const filterOperation = ref<string>('')
 const currentPage = ref(1)
 const pageSize = 10
+const isMobile = ref(false)
 
 const operationOptions = Object.entries(OPERATION_LABELS).map(([value, label]) => ({
   value,
@@ -155,6 +161,19 @@ function formatTime(t: string): string {
     return t
   }
 }
+
+function checkMobile() {
+  isMobile.value = window.innerWidth < 640
+}
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 
 onMounted(async () => {
   try {
