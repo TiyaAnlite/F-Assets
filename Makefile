@@ -17,10 +17,9 @@ build-cli:
 
 .PHONY: build-frontend
 build-frontend:
-	cd frontend && yarn build
+	cd frontend && pnpm i
+	cd frontend && pnpm build
 
 .PHONY: build-docker
 build-docker: build-frontend
-	cd frontend && pnpm i
-	cd ..
 	docker build -t $(DOCKER_IMAGE):$(shell date +%Y%m%d)-$(shell git rev-parse HEAD | cut -c1-8) --push .
