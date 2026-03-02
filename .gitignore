@@ -27,3 +27,7 @@ go.work.sum
 .idea
 local
 build
+
+# node
+node_modules
+.vite

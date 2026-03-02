@@ -10,6 +10,7 @@ import (
 	"github.com/duke-git/lancet/v2/random"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func postPosition(c echo.Context) error {
@@ -60,6 +61,7 @@ func getAsset(c echo.Context) error {
 		var asset Asset
 		if err := db.DB().
 			Scopes(id.QueryScope).
+			Preload(clause.Associations).
 			Take(&asset).
 			Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -73,6 +75,7 @@ func getAsset(c echo.Context) error {
 		if err := db.DB().
 			Scopes(id.QueryScope).
 			Where("type = ?", AssetBasicItemType).
+			Preload(clause.Associations).
 			Take(&asset).
 			Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -84,9 +87,11 @@ func getAsset(c echo.Context) error {
 	case AssetBookType:
 		var asset []Book
 		if err := db.DB().
+			Joins("LEFT JOIN asset ON asset.id = book.asset_id").
 			Scopes(id.QueryScope).
-			Association("asset").
-			Find(&asset); err != nil {
+			Preload(clause.Associations).
+			Preload("Asset.Position").
+			Find(&asset).Error; err != nil {
 			return InternalError(c, err)
 		}
 		if len(asset) == 0 {
