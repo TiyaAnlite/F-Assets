@@ -23,3 +23,11 @@ build-frontend:
 .PHONY: build-docker
 build-docker: build-frontend
 	docker build -t $(DOCKER_IMAGE):$(shell date +%Y%m%d)-$(shell git rev-parse HEAD | cut -c1-8) --push .
+
+.PHONY: server-dev
+server-dev:
+	go run github.com/TiyaAnlite/F-Assests
+
+.PHONY: web-dev
+web-dev:
+	cd frontend && pnpm dev
